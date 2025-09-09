@@ -25,7 +25,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${nunito.className}`}>
-      <body className="antialiased max-h-[100vh] overflow-x-hidden">
+      <body className="max-h-[100vh] overflow-x-hidden">
         <JotaiProvider>{children}</JotaiProvider>
         <Monitoring />
       </body>

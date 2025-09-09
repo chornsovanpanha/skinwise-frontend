@@ -1,20 +1,32 @@
-// lib/withAuth.ts
+import { SESSION_NAME } from "@/utils/constant/cookie";
+import { User } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
+import prismaClientTools from "../prisma";
 
-export function withAuth(handler: (req: NextRequest) => Promise<NextResponse>) {
-  return async function (req: NextRequest) {
-    const token = req.headers.get("Authorization");
+export type AppRouteHandler = (
+  req: NextRequest & { user: User }
+) => Promise<NextResponse>;
 
+export function withAuth(handler: AppRouteHandler) {
+  return async function (req: NextRequest): Promise<NextResponse> {
+    const token = req.cookies.get(SESSION_NAME)?.value;
     if (!token) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // optionally verify token here
-    // const user = await verifyToken(token);
+    const session = await prismaClientTools.session.findUnique({
+      where: { token },
+      include: { user: true },
+    });
 
-    // Attach user to request if needed
-    // req.user = user;
+    if (!session || session.expiresAt < new Date()) {
+      if (session) {
+        await prismaClientTools.session.delete({ where: { token } });
+      }
+      return NextResponse.json({ error: "Session expired" }, { status: 401 });
+    }
 
-    return handler(req);
+    const reqWithUser = Object.assign(req, { user: session.user });
+    return handler(reqWithUser);
   };
 }
