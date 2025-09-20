@@ -1,7 +1,10 @@
+import { getMyProfileAction } from "@/actions/profile/profile.action";
 import AuthenticatedButton from "@/app/(auth)/components/AuthenticatedButton";
 import { SkinwiseLogoTop } from "@/assets";
 import LoginButton from "@/components/LoginButton";
 import { getAppSession } from "@/lib/sessions/cookie";
+import { getUserIdFromSession } from "@/lib/sessions/session";
+import { UserWithSubscription } from "@/types/prisma";
 import Image from "next/image";
 import Link from "next/link";
 import MobileNavBar from "./MobileNavBar";
@@ -9,9 +12,13 @@ import PublicMenus from "./PublicMenus";
 
 export default async function NavBar() {
   const cookie = await getAppSession();
+  const userId = await getUserIdFromSession();
+  const profile = (await getMyProfileAction(
+    userId ?? ""
+  )) as UserWithSubscription;
 
   return (
-    <div className="sticky top-0 z-[12000] bg-gray-50">
+    <div className="sticky top-0 z-[50] bg-gray-50">
       <div className="flex mx-auto container max-w-7xl justify-between px-6 sm:px-12 py-6 ">
         {/* Left side (Logo) */}
         <Link href="/" className="flex items-center">
@@ -26,8 +33,9 @@ export default async function NavBar() {
         {/* Right side (Menus + Auth) */}
         <div className="hidden md:flex flex-1 justify-end items-center gap-8">
           <PublicMenus />
+
           {/* Authentication Buttons */}
-          {cookie ? <AuthenticatedButton /> : <LoginButton />}
+          {cookie ? <AuthenticatedButton profile={profile} /> : <LoginButton />}
         </div>
 
         {/* Mobile Menu */}

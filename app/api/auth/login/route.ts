@@ -2,11 +2,11 @@ import { adminAuth } from "@/lib/firebase/admin";
 import { validateUserPassword } from "@/lib/middleware/validate-password";
 import { validateBody } from "@/lib/middleware/zod-validation";
 import prismaClientTools from "@/lib/prisma";
+import { LoginBy } from "@/types/prisma";
 import { EXPIRED_AT, SESSION_NAME } from "@/utils/constant/cookie";
 import { generateFallbackEmail } from "@/utils/generate/email-generate";
 import { sendEmail } from "@/utils/node-mailer/send-email";
 import { ApiLoginSchema, loginSchema } from "@/utils/schema";
-import { LoginBy } from "@prisma/client";
 import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
 import z from "zod";
@@ -18,9 +18,11 @@ export async function POST(request: Request) {
     const { email: bodyEmail, idToken, loginBy, photoUrl } = body;
 
     let user;
-    let oldUser;
     let imageQuery;
 
+    const checkUserExist = await prismaClientTools.user.findUnique({
+      where: { email: data?.email?.toLowerCase() },
+    });
     if (!loginBy || loginBy == "email") {
       user = await prismaClientTools.user.findUnique({
         where: { email: bodyEmail?.toLowerCase() },
@@ -67,9 +69,6 @@ export async function POST(request: Request) {
         decodedToken.email ||
         generateFallbackEmail(decodedToken.uid, loginBy ?? "email");
       const name = decodedToken.name || "";
-      oldUser = await prismaClientTools.user.findUnique({
-        where: { email: bodyEmail },
-      });
 
       // Check if user exists, create if not update the information email and override the name
 
@@ -129,10 +128,11 @@ export async function POST(request: Request) {
     await prismaClientTools.session.create({
       data: { userId: user.id, token, expiresAt },
     });
-    if (!oldUser) {
+
+    if (!checkUserExist?.email) {
       await sendEmail({
         sender: {
-          address: "Nightpp19@gmail.com",
+          address: "amyjohn922@gmail.com",
           name: "Skin Wise",
         },
 
@@ -166,6 +166,7 @@ export async function POST(request: Request) {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       path: "/",
+      sameSite: "lax",
       maxAge: EXPIRED_AT,
       expires: expiresAt,
     });

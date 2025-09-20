@@ -14,6 +14,7 @@ import {
 } from "@/utils/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
+import { useSetAtom } from "jotai";
 import { Lock, Mail } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -21,8 +22,7 @@ import { redirect } from "next/navigation";
 import { startTransition, useState } from "react";
 import { FieldErrors, Path, Resolver, useForm } from "react-hook-form";
 import SocialButton from "./SocialButton";
-import { useSetAtom } from "jotai";
-import { userAtom } from "@/lib/atom";
+import { userAtom } from "@/lib/atom/user.atom";
 
 type FormType = "login" | "register";
 
@@ -73,7 +73,6 @@ const Form = <T extends FormType>({ title, desc, type }: FormProps<T>) => {
         redirect("/");
       });
     } else {
-      console.error(error);
       show({ type: "error", message: JSON.stringify(error) });
 
       setMutatestate((pre) => ({
@@ -81,6 +80,7 @@ const Form = <T extends FormType>({ title, desc, type }: FormProps<T>) => {
         error: error as string,
         loading: false,
       }));
+      console.error(error);
     }
   };
 
@@ -180,7 +180,7 @@ const Form = <T extends FormType>({ title, desc, type }: FormProps<T>) => {
             </div>
           </form>
 
-          <div className="hidden w-full md:flex bg-secondary place-items-center  justify-center rounded-r-2xl">
+          <div className="hidden w-full md:flex bg-secondary place-items-center justify-center rounded-r-2xl">
             <Image
               src={SkinwiseLogoLight}
               alt="Image-Cover"

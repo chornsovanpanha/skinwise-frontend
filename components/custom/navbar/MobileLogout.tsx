@@ -3,7 +3,7 @@ import { defaultState } from "@/app/(auth)/components/SocialButton";
 import Loading from "@/app/loading";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { defaultUserState, userAtom } from "@/lib/atom";
+import { defaultUserState, userAtom } from "@/lib/atom/user.atom";
 import { auth } from "@/lib/firebase/config";
 import { clearGoogleLogout } from "@/utils/social/clear-auth";
 import { signOut } from "firebase/auth";
@@ -49,7 +49,7 @@ const MobileLogout = () => {
     <main className="my-4">
       {mutateState.loading && <Loading />}
       <Button
-        className="text-error-main w-full bg-error-background hover:bg-error-background/80"
+        className="text-error-main w-full bg-error-background hover:bg-error-background/80 rounded-full"
         onClick={handleLogout}
       >
         Logout
