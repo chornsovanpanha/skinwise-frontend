@@ -1,7 +1,8 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Ingredient, Product, SearchType } from "@/types";
+import { Product, SearchType } from "@/types";
 import IngredientListItem from "../IngredientListItem";
 import SmallProductItem from "../SmallProductItem";
+import { Ingredient } from "@prisma/client";
 
 const SearchPreviewListing = ({
   onPress,
@@ -16,11 +17,7 @@ const SearchPreviewListing = ({
     <div className="box-area absolute top-18 left-0 right-0 bg-white rounded-none rounded-b-2xl z-10 shadow pt-6">
       <ScrollArea className="h-[400px]">
         {ingredients?.map((ingred) => (
-          <IngredientListItem
-            data={ingred}
-            key={ingred.id}
-            onPress={() => onPress("ingredient")}
-          />
+          <IngredientListItem data={ingred} key={ingred.id} />
         ))}
         {products?.map((product) => (
           <SmallProductItem

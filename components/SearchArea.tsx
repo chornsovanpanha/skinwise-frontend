@@ -1,9 +1,10 @@
 import { useSearch } from "@/hooks/useSearch";
-import { Ingredient, Product, SearchType } from "@/types";
+import { Product, SearchType } from "@/types";
 import { useEffect, useRef, useState } from "react";
 import AppInput from "./AppInput";
 import RecentProductListing from "./landing-page/RecentProductListing";
 import SearchPreviewListing from "./landing-page/SearchPreviewListing";
+import { Ingredient } from "@prisma/client";
 
 const SearchArea = ({
   className,
@@ -44,7 +45,7 @@ const SearchArea = ({
         onFocus={() => setIsFocused(true)}
         onChange={handleTextChange}
         type="text"
-        className={`bg-secondary border-0 text-primary py-8 my-4 rounded-2xl z-50 ${className}`}
+        className={`bg-secondary border-0 text-primary py-8 my-4 rounded-2xl z-50  ${className}`}
         placeholder="Type to search for product or ingredient...."
       />
       {isFocused && debounceSearch && (
@@ -55,7 +56,9 @@ const SearchArea = ({
         />
       )}
 
-      {showRecent && isFocused && !debounceSearch && <RecentProductListing />}
+      {showRecent && isFocused && !debounceSearch && (
+        <RecentProductListing onPress={handleTapItem} />
+      )}
     </div>
   );
 };
